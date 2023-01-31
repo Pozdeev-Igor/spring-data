@@ -1,16 +1,18 @@
 package com.spring_data_new.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -19,21 +21,33 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.sql.DataSource;
-import java.util.Objects;
 import java.util.Properties;
 
-@PropertySource("classpath:hibernate.properties")
-@EnableJpaRepositories(basePackages = "com.spring_data.repository")
-@ComponentScan({"com.spring_data_new"})
+@Configuration
+@ComponentScan("com.spring_data_new")
 @EnableWebMvc
+@EnableTransactionManagement
+@EnableJpaRepositories("com.spring_data_new.repository")
+@PropertySource("classpath:application.properties")
 public class SpringWebConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
-    private final Environment environment;
 
-    public SpringWebConfig(ApplicationContext applicationContext, Environment environment) {
+    @Value("${spring.datasource.url}")
+    private String databaseURL;
+    @Value("${spring.datasource.driver-class-name}")
+    private String driverClass;
+    @Value("${spring.datasource.username}")
+    private String datasourceUsername;
+    @Value("${spring.datasource.password}")
+    private String datasourcePassword;
+    @Value("${spring.jpa.properties.hibernate.dialect}")
+    private String hibernareDialect;
+    @Value("${spring.jpa.show-sql}")
+    private boolean showSQL;
+
+    public SpringWebConfig(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-        this.environment = environment;
     }
 
     @Bean
@@ -67,18 +81,18 @@ public class SpringWebConfig implements WebMvcConfigurer {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
-        dataSource.setDriverClassName(Objects.requireNonNull(environment.getProperty("hibernate.driver_class")));
-        dataSource.setUrl(environment.getProperty("hibernate.connection.url"));
-        dataSource.setUsername(environment.getProperty("hibernate.connection.username"));
-        dataSource.setPassword(environment.getProperty("hibernate.connection.password"));
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setUrl(databaseURL);
+        dataSource.setUsername(datasourceUsername);
+        dataSource.setPassword(datasourcePassword);
 
         return dataSource;
     }
 
     private Properties hibernateProperties() {
         Properties properties = new Properties();
-        properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
-        properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
+        properties.put("spring.jpa.properties.hibernate.dialect", hibernareDialect);
+        properties.put("spring.jpa.show-sql", showSQL);
 
         return properties;
     }
