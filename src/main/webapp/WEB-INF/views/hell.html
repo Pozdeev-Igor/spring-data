@@ -6,6 +6,7 @@
 </head>
 <body>
 <h1>Form</h1>
+<!--/*@thymesVar id="user" type="com.spring_data_new.model.User"*/-->
 <form th:method="POST" th:action="@{/add-user}" th:object="${user}" >
 <!--    <p>id: <input type="text" th:field="*{id}" /></p>-->
     <p>firstName: <input type="text" th:field="*{firstName}" /></p>

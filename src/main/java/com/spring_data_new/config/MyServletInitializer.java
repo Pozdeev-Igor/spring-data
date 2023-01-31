@@ -1,6 +1,5 @@
 package com.spring_data_new.config;
 
-import com.spring_data_new.config.SpringWebConfig;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
